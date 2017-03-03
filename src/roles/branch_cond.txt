@@ -1,0 +1,8 @@
+lfp(branch_cond).
+type(branch_cond,int).
+type(branch_cond,char).
+
+
+check(X,branch_cond) :- if_stmt(IfStmt), condition(IfStmt, Cond), literal(Expr,Cond), bop_expr(Expr), opcode(Expr,Opcode), eq_opcode(Opcode), lhs_expr(Expr,X), identifier(X), rhs_expr(Expr,Zero), constant(Zero), text(Zero,"0").
+
+compute_literals(Cond) :- if_stmt(IfStmt), condition(IfStmt, Cond).

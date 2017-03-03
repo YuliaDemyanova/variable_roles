@@ -1,0 +1,16 @@
+%%% propagate roles from return statement to function declarations
+assigned(Func, Expr) :- func_decl(Func), return_stmt(RetStmt), function(RetStmt,Func), sub_expr(RetStmt, Expr).
+
+%%% propagate roles from function to the variable which is assigned the call expression
+assigned(X, Func) :- assigned(X, CallExpr), call_expr(CallExpr), function(CallExpr, Func).
+
+%%% propagate roles from actual parameters to formal ones
+assigned(FormParamI,ActParamI) :- func_decl(Func), param(Func, I, FormParamI), call_expr(CallExpr), function(CallExpr, Func), param(CallExpr, I, ActParamI).
+
+%%% propagate roles from return exprs to a result of function call 
+check(CallExpr, Role) :- call_expr(CallExpr), function(CallExpr, Func), cand(Func, Role), not exclude(Func, Role).
+
+%%% initialise the candidate set for a function
+cand(Func, Role) :- gfp(Role), func_decl(Func), type(Func,Type), type(Role,Type), body(Func,Body).
+
+check(Expr, Role) :- allow_unres_assign(Role), call_expr(Expr), function(Expr,Func), type(Func,Type), type(Role,Type), not body(Func,Body): body(Func,Body).

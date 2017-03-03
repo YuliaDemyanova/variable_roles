@@ -1,0 +1,11 @@
+lfp(file_def).
+type(file_def,int).
+check(X, file_def) :- assigned(X,Expr), identifier(X), call_expr(Expr), function(Expr, Func), func_decl(Func), text(Func, FuncName), filedef_func_name(FuncName).
+
+filedef_func_name("open").
+filedef_func_name("openat").
+filedef_func_name("creat").
+filedef_func_name("dup").
+filedef_func_name("dup2").
+filedef_func_name("dup3").
+filedef_func_name("fcntl").

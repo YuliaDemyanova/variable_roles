@@ -1,0 +1,52 @@
+gfp(linear).
+type(linear,int).
+type(linear,char).
+allow_unres_assign(linear).
+
+check(X, linear) :- identifier(X), not non_lin_var(X).
+non_lin_var(X):- assigned(X,Y), identifier(Y), non_lin_var(Y).
+non_lin_var(X):- assigned(X,Expr), not linear_shape(Expr), not call_expr(Expr), not func_decl(Expr).
+check(Expr, linear) :- unresolved_assign_expr(Expr).
+
+check(Expr,linear) :- not identifier(Expr), linear_shape(Expr), not non_lin_expr(Expr).
+non_lin_expr(Expr):- linear_shape_subexpr_var(Expr,Y), non_lin_var(Y).
+
+non_lin_var(X):- assigned(X,Expr), bop_expr(Expr), opcode(Expr, Opcode),
+	add_opcode(Opcode), lhs_expr(Expr,LhsExpr), non_lin_expr(LhsExpr).
+
+non_lin_var(X):- assigned(X,Expr), bop_expr(Expr), opcode(Expr, Opcode),
+	add_opcode(Opcode), rhs_expr(Expr,RhsExpr), non_lin_expr(RhsExpr).
+
+non_lin_var(X):- assigned(X,Expr), bop_expr(Expr), opcode(Expr, Opcode),
+	Opcode="*", lhs_expr(Expr,LhsExpr), non_lin_expr(LhsExpr).
+
+non_lin_var(X):- assigned(X,Expr), bop_expr(Expr), opcode(Expr, Opcode),
+	Opcode="*", rhs_expr(Expr,RhsExpr), non_lin_expr(RhsExpr).
+
+non_lin_var(X):- assigned(X,Expr), uop_expr(Expr), opcode(Expr, Opcode),
+	uadd_opcode(Opcode), sub_expr(Expr,SubExpr), non_lin_expr(SubExpr).
+
+linear_shape(Expr):- constant(Expr).
+linear_shape(Expr):- identifier(Expr).
+linear_shape(Expr):- bop_expr(Expr), opcode(Expr, Opcode), add_opcode(Opcode),
+	lhs_expr(Expr,LhsExpr), linear_shape(LhsExpr), rhs_expr(Expr,RhsExpr),
+	linear_shape(RhsExpr).
+
+linear_shape(Expr):- bop_expr(Expr), opcode(Expr, Opcode), Opcode="*",
+	lhs_expr(Expr,LhsExpr), constant(LhsExpr), rhs_expr(Expr,RhsExpr),
+	linear_shape(RhsExpr).
+
+linear_shape(Expr):- bop_expr(Expr), opcode(Expr, Opcode), Opcode="*",
+	lhs_expr(Expr,LhsExpr), linear_shape(LhsExpr), rhs_expr(Expr,RhsExpr),
+	constant(RhsExpr).
+
+linear_shape(Expr):- uop_expr(Expr), opcode(Expr, Opcode), uadd_opcode(Opcode),
+	subexpr(Expr,SubExpr), linear_shape(SubExpr).
+
+linear_shape_subexpr_var(Expr,Expr):- identifier(Expr).
+linear_shape_subexpr_var(Expr,X):- linear_shape(Expr), bop_expr(Expr), lhs_expr(Expr,LhsExpr),
+	linear_shape_subexpr_var(LhsExpr,X).
+linear_shape_subexpr_var(Expr,X):- linear_shape(Expr), bop_expr(Expr), rhs_expr(Expr,RhsExpr),
+	linear_shape_subexpr_var(RhsExpr,X).	
+linear_shape_subexpr_var(Expr,X):- linear_shape(Expr), uop_expr(Expr), sub_expr(Expr,SubExpr),
+	linear_shape_subexpr_var(SubExpr,X).

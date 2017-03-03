@@ -1,0 +1,18 @@
+gfp(boolean).
+type(boolean,int).
+type(boolean,char).
+
+check(Expr, boolean) :- int_const(Expr),text(Expr, Val), bool_val(Val).
+check(Expr, boolean) :- bop_expr(Expr), opcode(Expr,Opcode), boolres_opcode(Opcode).
+check(Expr, boolean) :- uop_expr(Expr), opcode(Expr, "LNOT").
+
+boolres_opcode(Opcode) :- logical_opcode(Opcode).
+boolres_opcode(Opcode) :- rel_opcode(Opcode).
+boolres_opcode(Opcode) :- eq_opcode(Opcode).
+
+exclude(X, boolean) :- bool_comp_excl(X).
+bool_comp_excl(X) :- bop_expr(Expr), opcode(Expr,Opcode), not logical_opcode(Opcode), not eq_opcode(Opcode), lhs_expr(Expr, X), identifier(X).
+bool_comp_excl(X) :- bop_expr(Expr), opcode(Expr,Opcode), not logical_opcode(Opcode), not eq_opcode(Opcode), rhs_expr(Expr, X), identifier(X).
+bool_comp_excl(X) :- uop_expr(Expr), opcode(Expr,Opcode), not logical_opcode(Opcode), sub_expr(Expr, X), identifier(X).
+bool_comp_excl(X) :- bop_expr(Expr), opcode(Expr,Opcode), eq_opcode(Opcode), lhs_expr(Expr, X), rhs_expr(Expr, RhsExpr), identifier(X), not check(RhsExpr, boolean).
+bool_comp_excl(X) :- bop_expr(Expr), opcode(Expr,Opcode), eq_opcode(Opcode), lhs_expr(Expr, LhsExpr), rhs_expr(Expr, X), identifier(X), not check(LhsExpr, boolean).

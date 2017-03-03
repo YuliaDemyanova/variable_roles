@@ -1,0 +1,7 @@
+lfp(used_in_arithm).
+type(used_in_arithm,int).
+type(used_in_arithm,char).
+
+check(X,used_in_arithm) :- bop_expr(Expr), opcode(Expr,Opcode), arithm_opcode(Opcode), lhs_expr(Expr,X).
+check(X,used_in_arithm) :- bop_expr(Expr), opcode(Expr,Opcode), arithm_opcode(Opcode), rhs_expr(Expr,X).
+check(X,used_in_arithm) :- uop_expr(Expr), opcode(Expr,Opcode), arithm_opcode(Opcode), lhs_expr(Expr,X).

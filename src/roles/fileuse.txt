@@ -1,0 +1,17 @@
+lfp(file_use).
+type(file_use,int).
+
+check(X, file_use) :- call_expr(Expr), function(Expr, Func), func_decl(Func), text(Func, FuncName), file_func_name(FuncName), param(Expr, 0, X), identifier(X).
+
+file_func_name("read").
+file_func_name("write").
+file_func_name("fstat").
+file_func_name("openat").
+file_func_name("fcntl").
+file_func_name("fchmod").
+file_func_name("fchown").
+file_func_name("dup").
+file_func_name("dup2").
+file_func_name("dup3").
+file_func_name("lseek").
+file_func_name("mmap").

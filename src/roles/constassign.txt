@@ -1,0 +1,11 @@
+gfp(const_assign).
+type(const_assign,int).
+type(const_assign,char).
+type(const_assign,float).
+allow_unres_assign(const_assign).
+
+comp_const(Expr) :- uop_expr(Expr), sub_expr(Expr, Val), constant(Val).
+comp_const(Expr) :- bop_expr(Expr), lhs_expr(Expr, Val1), constant(Val1), rhs_expr(Expr, Val2), constant(Val2).
+constant(Expr) :- comp_const(Expr).
+
+check(Expr, const_assign) :- constant(Expr).

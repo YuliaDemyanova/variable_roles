@@ -1,0 +1,30 @@
+lfp(loop_iterator).
+type(loop_iterator,int).
+type(loop_iterator,char).
+check(X,loop_iterator) :- loop_it(X,WhileStmt).
+loop_it(X,WhileStmt) :- while(WhileStmt), substmt(AsgnStmt,WhileStmt), assignment_stmt(AsgnStmt), lhs_expr(AsgnStmt,X), identifier(X), exit_condition(Cond,WhileStmt), compared_in(X,Cond).
+
+exit_condition(Cond,WhileStmt) :- while(WhileStmt), condition(WhileStmt,Cond).
+exit_condition(Cond,WhileStmt) :- while(WhileStmt), substmt(IfStmt,WhileStmt), if_stmt(IfStmt), condition(IfStmt,Cond), substmt(BreakStmt,IfStmt), break_stmt(BreakStmt).
+exit_condition(Cond,WhileStmt) :- while(WhileStmt), substmt(IfStmt,WhileStmt), if_stmt(IfStmt), condition(IfStmt,Cond), substmt(GotoStmt, IfStmt), goto_stmt(GotoStmt), label(GotoStmt,LabelStmt), not substmt(LabelStmt,WhileStmt).
+
+compute_substmts(WhileStmt) :- while(WhileStmt).
+compute_substmts(IfStmt) :- while(WhileStmt), substmt(IfStmt,WhileStmt), if_stmt(IfStmt).
+
+compared_in(X,Expr) :- literal(SubExpr,Expr), bop_expr(SubExpr), opcode(SubExpr,Opcode), compar_opcode(Opcode), lhs_expr(SubExpr,X), identifier(X).
+compared_in(X,Expr) :- literal(SubExpr,Expr), bop_expr(SubExpr), opcode(SubExpr,Opcode), compar_opcode(Opcode), rhs_expr(SubExpr,X), identifier(X).
+
+compute_literals(Cond) :- loop_condition(Cond,WhileStmt).
+
+lfp(loop_bound).
+type(loop_bound,int).
+type(loop_bound,char).
+
+check(X,loop_bound) :- loop_bnd(X,WhileStmt).
+loop_bnd(XBnd,WhileStmt) :- while(WhileStmt), exit_condition(Cond,WhileStmt), compared_with(XBnd,XIt,Cond,Opcode), identifier(XBnd), loop_it(XIt,WhileStmt).
+
+compared_with(X,Y,Expr,Opcode) :- literal(SubExpr,Expr), bop_expr(SubExpr), opcode(SubExpr,Opcode), compar_opcode(Opcode), lhs_expr(SubExpr,X), rhs_expr(SubExpr,Y).
+compared_with(X,Y,Expr,Opcode) :- compared_with(Y,X,Expr,Opcode).
+
+loop_condition(Cond,WhileStmt) :- exit_condition(Cond,WhileStmt).
+loop_condition(Cond,WhileStmt) :- while(WhileStmt), substmt(IfStmt,WhileStmt), if_stmt(IfStmt), substmt(AssignStmt,IfStmt), assignment_stmt(AssignStmt), lhs_expr(AssignStmt, XIt), loop_it(XIt,WhileStmt), condition(IfStmt,Cond).

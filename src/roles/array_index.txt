@@ -1,0 +1,4 @@
+lfp(array_index).
+type(array_index,int).
+type(array_index,char).
+check(X, array_index) :- array_expr(ArrExpr), arrayind_expr(ArrExpr, X), identifier(X).

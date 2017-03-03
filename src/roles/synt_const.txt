@@ -1,0 +1,4 @@
+gfp(synt_const).
+type(synt_const,int).
+type(synt_const,char).
+type(synt_const,float).

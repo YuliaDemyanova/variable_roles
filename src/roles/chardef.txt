@@ -1,0 +1,18 @@
+lfp(char_def).
+type(char_def,int).
+type(char_def,char).
+
+check(X,char_def) :- assigned(X,RhsExpr), identifier(X), char_val(RhsExpr).
+
+char_val(Expr) :- char_const(Expr).
+char_val(Expr) :- call_expr(Expr), function(Expr, Func), func_decl(Func), text(Func, FuncName), char_func_name(FuncName).
+
+%TODO: in src/translator/translator.cpp for functions implemented as a macro, the macro name should be output in text(Func,"func_name") instead of the name of macro-substitution
+% e.g. #define putc(_ch, _fp) _IO_putc (_ch, _fp)
+
+char_func_name("fgetc").
+char_func_name("getc").
+char_func_name("getchar").
+char_func_name("fgetwc").
+char_func_name("getwc").
+char_func_name("getwchar").

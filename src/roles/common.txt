@@ -1,0 +1,96 @@
+cand(X, Role) :- gfp(Role), identifier(X), type(X,Type), type(Role,Type).
+cand(X, Role) :- lfp(Role), identifier(X), check(X, Role), type(X,Type),type(Role,Type).
+
+
+check(X, Role) :- lfp(Role), identifier(X), cand(X, Role).
+check(X, Role) :- gfp(Role), identifier(X), not exclude(X, Role).
+
+exclude(X, Role) :- gfp(Role), assigned(X,RhsExpr), identifier(X), not check(RhsExpr, Role).
+
+% transitive closure
+check(X, Role) :- lfp(Role), assigned(X,Y), check(Y, Role).
+
+result(XName, Role) :- identifier(X), text(X,XName), cand(X, Role), not exclude(X, Role), not ext_func(X), not ext_func_param(X), not implicit_func(X).
+
+_heuristic(exclude(X, Role), sign, -1) :- gfp(Role), identifier(X).
+_heuristic(cand(X, Role), sign, -1) :- lfp(Role), identifier(X).
+
+
+ext_func(Func) :- func_decl(Func), not body(Func, Body) : body(Func, Body).
+ext_func_param(Param) :- func_decl(Func), param(Func, I, Param), not body(Func, Body) : body(Func, Body).
+implicit_func(Func) :- call_expr(CallExpr), function(CallExpr,Func), not func_decl(Func).
+
+
+int_const(Expr) :- constant(Expr), type(Expr,int).
+char_const(Expr) :- constant(Expr), type(Expr,char).
+
+compar_opcode(Opcode) :- rel_opcode(Opcode).
+compar_opcode(Opcode) :- eq_opcode(Opcode).
+logical_opcode("LOR").
+logical_opcode("LAND").
+logical_opcode("LNOT").
+rel_opcode("<").
+rel_opcode("<=").
+rel_opcode(">").
+rel_opcode(">=").
+eq_opcode("==").
+eq_opcode("!=").
+add_opcode("+").
+add_opcode("-").
+bool_val("0").
+bool_val("1").
+arithm_opcode(Opcode) :- rel_opcode(Opcode).
+arithm_opcode(Opcode) :- add_opcode(Opcode).
+arithm_opcode("*").
+arithm_opcode("/").
+
+assigned(X,RhsExpr) :- assignment_stmt(Expr),lhs_expr(Expr,X), rhs_expr(Expr,RhsExpr), X!=RhsExpr.
+
+flows_from(X,Expr) :- compute_flow(X), Expr=X.
+flows_from(X,Expr) :- compute_flow(X), assigned(X,Expr).
+flows_from(X,Expr) :- compute_flow(X), not compute_flow_intraproc(X), func_decl(Func), param(Func,I,X), call_expr(CallExpr), function(CallExpr,Func), param(CallExpr,I,Expr).
+flows_from(X,Expr) :- compute_flow(X), flows_from(X,Y), identifier(Y), flows_from(Y,Expr).
+compute_subexpr(Expr) :- flows_from(X,Expr).
+compute_flow(Y) :- compute_flow(X), flows_from(X,Y), identifier(Y).
+compute_flow_intraproc(Y) :- compute_flow_intraproc(X), flows_from(X,Y), identifier(Y).
+
+#script (lua)
+function cat(...)
+	res=""
+	for i,v in pairs({...}) do
+		res=res .. tostring(v)
+	end
+	return res
+end
+#end.
+
+expr_str(Expr,Str) :- subexpr(Expr,FullExpr), bop_expr(Expr), opcode(Expr,Opcode), lhs_expr(Expr,LhsExpr), rhs_expr(Expr,RhsExpr), expr_str(LhsExpr,LhsExprStr), expr_str(RhsExpr,RhsExprStr), Str=@cat("{",LhsExprStr,Opcode,RhsExprStr,"}").
+expr_str(Expr,Str) :- subexpr(Expr,FullExpr), uop_expr(Expr), opcode(Expr,Opcode), sub_expr(Expr,SubExpr), expr_str(SubExpr,SubExprStr), Str=@cat("{",Opcode,SubExprStr,"}").
+expr_str(Expr,Str) :- subexpr(Expr,FullExpr), identifier(Expr), text(Expr,Str).
+expr_str(Expr,Str) :- subexpr(Expr,FullExpr), constant(Expr), text(Expr,Str), not comp_const(Expr).
+
+subexpr(SubExpr,Expr) :- compute_subexpr(Expr), SubExpr=Expr.
+subexpr(SubExpr,Expr) :- compute_subexpr(Expr), subexpr(BopExpr,Expr), bop_expr(BopExpr), lhs_expr(BopExpr,SubExpr).
+subexpr(SubExpr,Expr) :- compute_subexpr(Expr), subexpr(BopExpr,Expr), bop_expr(BopExpr), rhs_expr(BopExpr,SubExpr).
+subexpr(SubExpr,Expr) :- compute_subexpr(Expr), subexpr(UopExpr,Expr), uop_expr(UopExpr), sub_expr(UopExpr,SubExpr).
+
+substmt(Stmt1,Stmt) :- compute_substmts(Stmt), substmt(SeqStmt,Stmt), sequence_stmt(SeqStmt), sub_stmt1(SeqStmt,Stmt1).
+substmt(Stmt2,Stmt) :- compute_substmts(Stmt), substmt(SeqStmt,Stmt), sequence_stmt(SeqStmt), sub_stmt2(SeqStmt,Stmt2).
+substmt(Body,Stmt) :- compute_substmts(Stmt), substmt(WhileStmt,Stmt), while(WhileStmt), body(WhileStmt,Body).
+substmt(ThenStmt,Stmt) :- compute_substmts(Stmt), substmt(IfStmt,Stmt), if_stmt(IfStmt), then_stmt(IfStmt,ThenStmt).
+substmt(ElseStmt,Stmt) :- compute_substmts(Stmt), substmt(IfStmt,Stmt), if_stmt(IfStmt), else_stmt(IfStmt,ElseStmt).
+substmt(SubStmt,Stmt) :- compute_substmts(Stmt), SubStmt=Stmt.
+
+substmt_rev(Stmt,SeqStmt) :- compute_substmts_rev(Stmt), substmt_rev(Stmt,Stmt1), sequence_stmt(SeqStmt), sub_stmt1(SeqStmt,Stmt1).
+substmt_rev(Stmt,SeqStmt) :- compute_substmts_rev(Stmt), substmt_rev(Stmt,Stmt2), sequence_stmt(SeqStmt), sub_stmt2(SeqStmt,Stmt2).
+substmt_rev(Stmt,IfStmt) :- compute_substmts_rev(Stmt), substmt_rev(Stmt,ThenStmt), if_stmt(IfStmt), then_stmt(IfStmt,ThenStmt).
+substmt_rev(Stmt,IfStmt) :- compute_substmts_rev(Stmt), substmt_rev(Stmt,ElseStmt), if_stmt(IfStmt), else_stmt(IfStmt,ElseStmt).
+substmt_rev(Stmt,WhileStmt) :- compute_substmts_rev(Stmt), substmt_rev(Stmt,Body), while(WhileStmt), body(WhileStmt,Body).
+substmt_rev(Stmt,CallStmt) :- compute_substmts_rev(Stmt), not compute_substmts_rev_intraproc(Stmt), substmt_rev(Stmt,Body), func_decl(Func), body(Func,Body), call_expr(CalllStmt), function(CallStmt,Func).
+substmt_rev(SubStmt,Stmt) :- compute_substmts_rev(SubStmt), SubStmt=Stmt.
+compute_substmts_rev(Stmt) :- compute_substmt_rev_intraproc(Stmt).
+
+literal(SubExpr,Expr) :- compute_literals(Expr), bop_expr(Expr), opcode(Expr,Opcode), logical_opcode(Opcode), lhs_expr(Expr,SubExpr).
+literal(SubExpr,Expr) :- compute_literals(Expr), bop_expr(Expr), opcode(Expr,Opcode), logical_opcode(Opcode), rhs_expr(Expr,SubExpr).
+literal(SubExpr,Expr) :- compute_literals(Expr), uop_expr(Expr), opcode(Expr,"LNOT"), sub_expr(Expr,SubExpr).
+literal(SubExpr,Expr) :- SubExpr=Expr,compute_literals(Expr).

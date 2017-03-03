@@ -1,0 +1,5 @@
+lfp(input).
+type(input,int).
+type(input,char).
+
+check(X,input) :- identifier(X), assigned(X,CallExpr), call_expr(CallExpr), function(CallExpr,Func), ext_func(Func).

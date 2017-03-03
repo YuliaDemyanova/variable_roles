@@ -1,0 +1,12 @@
+lfp(alloc_size).
+type(alloc_size,int).
+type(alloc_size,char).
+
+alloc_arg(Expr) :- call_expr(CallExpr), function(CallExpr,Func), text(Func, FuncName), alloc_func_name(FuncName), param(CallExpr, 0, Expr).
+
+check(X, alloc_size) :- alloc_arg(Expr), identifier(X), X=Expr.
+check(X, alloc_size) :- alloc_arg(Expr), bop_expr(Expr), text(Expr,"*"), lhs_expr(Expr,X), identifier(X), rhs_expr(Expr,RhsExpr), sizeof_expr(RhsExpr).
+check(X, alloc_size) :- alloc_arg(Expr), bop_expr(Expr), text(Expr,"*"), rhs_expr(Expr,X), identifier(X), lhs_expr(Expr,LhsExpr), sizeof_expr(LhsExpr).
+
+alloc_func_name("malloc").
+alloc_func_name("realloc").

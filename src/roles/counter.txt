@@ -1,0 +1,11 @@
+gfp(counter).
+type(counter,int).
+type(counter,char).
+allow_unres_assign(counter).
+
+check(Expr,counter) :- int_const(Expr).
+check(Expr,counter) :- counter_asgn(X,AsgnStmt,Val,Opcode), rhs_expr(AsgnStmt,Expr).
+
+counter_asgn(X,Stmt,Val,"+") :- assignment_stmt(Stmt), lhs_expr(Stmt,X), rhs_expr(Stmt,Expr), identifier(X), bop_expr(Expr), opcode(Expr,"+"), lhs_expr(Expr,X), rhs_expr(Expr,Val), int_const(Val).
+counter_asgn(X,Stmt,Val,"+") :- assignment_stmt(Stmt), lhs_expr(Stmt,X), rhs_expr(Stmt,Expr), identifier(X), bop_expr(Expr), opcode(Expr,"+"), lhs_expr(Expr,Val), rhs_expr(Expr,X), int_const(Val).
+counter_asgn(X,Stmt,Val,"-") :- assignment_stmt(Stmt), lhs_expr(Stmt,X), rhs_expr(Stmt,Expr), identifier(X), bop_expr(Expr), opcode(Expr,"-"), lhs_expr(Expr,X), rhs_expr(Expr,Val), int_const(Val).

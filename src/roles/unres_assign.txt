@@ -1,0 +1,10 @@
+lfp(unresolved_assign).
+type(unresolved_assign, char).
+type(unresolved_assign, int).
+type(unresolved_assign, float).
+
+check(X,unresolved_assign) :- assigned(X,RhsExpr), identifier(X), unresolved_assign_expr(RhsExpr).
+
+unresolved_assign_expr(Expr) :- array_expr(Expr).
+unresolved_assign_expr(Expr) :- uop_expr(Expr), text(Expr, "DEREF").
+unresolved_assign_expr(Expr) :- call_expr(Expr), function(Expr, Func), ext_func(Func).

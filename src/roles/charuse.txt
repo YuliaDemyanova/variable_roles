@@ -1,0 +1,24 @@
+lfp(char_use).
+type(char_use,int).
+type(char_use,char).
+
+check(X,char_use) :- call_expr(Expr), function(Expr, Func), func_decl(Func), text(Func, FuncName), char_func_name(FuncName), param(Expr,0,X), identifier(X).
+
+%TODO: in src/translator/translator.cpp for functions implemented as a macro, the macro name should be output in text(Func,"func_name") instead of the name of macro-substitution
+% e.g. #define getc(_fp) _IO_getc (_fp)
+
+char_func_name("fputc").
+char_func_name("putc").
+char_func_name("putchar").
+char_func_name("isalnum").
+char_func_name("isalpha").
+char_func_name("isascii").
+char_func_name("isblank").
+char_func_name("iscntrl").
+char_func_name("isdigit").
+char_func_name("islower").
+char_func_name("isprint").
+char_func_name("ispunct").
+char_func_name("isspace").
+char_func_name("isupper").
+char_func_name("isxdigit").

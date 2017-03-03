@@ -1,0 +1,7 @@
+lfp(offset).
+type(offset,int).
+type(offset,char).
+
+check(X, offset) :- bop_expr(Expr), opcode(Expr, "PTR_PLUS_INT"), rhs_expr(Expr, X), identifier(X),type(X,int).
+check(X, offset) :- bop_expr(Expr), opcode(Expr, "PTR_PLUS_INT"), lhs_expr(Expr, X), identifier(X),type(X,int).
+check(X, offset) :- bop_expr(Expr), opcode(Expr, "PTR_MINUS_INT"), rhs_expr(Expr, X), identifier(X),type(X,int).
