@@ -28,6 +28,7 @@ trans_rel=${tmp}_transition_relation
 logic_prog=${tmp}_input.lp
 ROLE_SPECS=`ls ${ROLES_DIR}/*.txt`
 
+mkdir -p ${RESULTS_DIR}
 log=${RESULTS_DIR}/log
 clingo_log=$RESULTS_DIR/clingo_log
 
