@@ -1,7 +1,7 @@
 export VARROLES_ROOT=`pwd`
 
 ######################################
-export CLANG_PATH=~/tools/clang_3.4/
+export LLVM_PATH=~/tools/clang_3.4/
 export CLANG_HEADERS=~/tools/clang_3.4/build/lib/clang/3.4.2/include/
 export STANDARD_GCC_HEADERS=/usr/lib/gcc/x86_64-linux-gnu/4.8/include
 #####################################

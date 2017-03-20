@@ -2,6 +2,21 @@ PREREQUISITES:
   - gcc
   - clang 3.4
 
+To install clang, take the following steps:
+	1. Check out LLVM:  
+	$ svn co http://llvm.org/svn/llvm-project/llvm/branches/release_34 llvm
+		
+	2. Check out Clang:
+	$ cd llvm/tools
+	$ svn co http://llvm.org/svn/llvm-project/cfe/branches/release_34 clang
+	$ cd ../../
+
+	3. Build LLVM and Clang: 
+	$ mkdir build
+	$ cd build
+	$ cmake -G "Unix Makefiles" ../llvm
+	$ make
+
 RUNNING the tool:
 
 1. Edit file src/scripts/export_paths.sh

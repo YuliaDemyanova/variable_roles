@@ -4,10 +4,10 @@ LLVMCOMPONENTS := cppbackend
 RTTIFLAG :=
 
 
-CXXFLAGS := -I$(CLANG_PATH)/llvm/include -I$(CLANG_PATH)/build/include -I$(CLANG_PATH)/build/tools/clang/include -I$(CLANG_PATH)/llvm/tools/clang/include -Werror -g -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -std=c++11 -fno-rtti
+CXXFLAGS := -I$(LLVM_PATH)/llvm/include -I$(LLVM_PATH)/build/include -I$(LLVM_PATH)/build/tools/clang/include -I$(LLVM_PATH)/llvm/tools/clang/include -Werror -g -D_DEBUG -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -std=c++11 -fno-rtti
 #-stdlib=libc++ 
 
-LLVMLDFLAGS := $(shell $(CLANG_PATH)/build/bin/llvm-config --ldflags --libs $(LLVMCOMPONENTS))
+LLVMLDFLAGS := $(shell $(LLVM_PATH)/build/bin/llvm-config --ldflags --libs $(LLVMCOMPONENTS))
 
 export TEST_DIR = $(VARROLES_DIR)"/test"
 
