@@ -37,10 +37,12 @@ RUNNING the tool:
    $ file src/translator/translator
 
 4. Run the tool:
+   $ . src/scripts/export_paths.sh
    $ src/scripts/run_varroles.sh -f <input> [-r <output_roles>] [-m <output_metrics>]
 
-	where <input> is the name of input C file
-		<output_roles> is the name of output file with role assignments
-		<output_metrics> is the name of output file with metrics
+   where <input> is the name of input C file
+     <output_roles> is the name of output file with role assignments
+     <output_metrics> is the name of output file with metrics
 
-   The result will be stored in results/metrics and results/roles
+   By default, the roles and metrics will be stored in the files results/roles and
+     results/metrics resp.
