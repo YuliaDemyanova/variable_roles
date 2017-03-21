@@ -37,7 +37,7 @@ translate_code()
 	#echo -n $input_file 'feature extraction...'
 
 #	STARTTIME=$(date +"%s%3N")
-	$translator $input_file -- $CFLAGS  2>> ${RESULTS_DIR}/err > $trans_rel
+	$translator $input_file -- $CFLAGS  2> ${RESULTS_DIR}/err > $trans_rel
 	if [ $? -ne 0 ]; then
 		echo ERROR: feature extraction failed on $input_file
 		cat ${RESULTS_DIR}/err
@@ -54,7 +54,7 @@ compute_roles()
 
 	FLAG="-n 1 --heuristic=Domain --out-hide-aux"
 	STARTTIME=$(date +"%s%3N")
-	$CLINGO $logic_prog $FLAG 2>> $clingo_log > $log
+	$CLINGO $logic_prog $FLAG 2> $clingo_log > $log
 	ENDTIME=$(date +"%s%3N")
 	duration2=$(($ENDTIME - $STARTTIME))
 
