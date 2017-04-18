@@ -116,6 +116,12 @@ Stmt* CanonFormTranslator::RewriteVarDecl(VarDecl* vd)
 	Stmt* repl = NULL;
 	if (vd->hasInit())
 	{
+		QualType qtype = vd->getType();
+		const Type* type = qtype.getTypePtr();
+		vd->setType(QualType(type, 0));
+		if (vd->getType().isConstQualified()) fprintf(stderr, "Error in CanonFormTranslator::VisitDeclStmt()\n");
+		else fprintf(stderr, "CanonFormTranslator::VisitDeclStmt() OK\n");
+
 		// create an assign stmt
 		Expr* init = vd->getInit()->IgnoreParenCasts();
 //		vd->setInit(NULL);
@@ -128,6 +134,7 @@ Stmt* CanonFormTranslator::RewriteVarDecl(VarDecl* vd)
 
 //		printf("replace conditional assigment in decl stmt:\n");
 //		repl->dump();
+
 	}
 	return repl;
 }
