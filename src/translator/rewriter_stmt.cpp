@@ -114,13 +114,17 @@ bool CanonFormTranslator::VisitDeclStmt(DeclStmt* stmt)
 Stmt* CanonFormTranslator::RewriteVarDecl(VarDecl* vd)
 {
 	Stmt* repl = NULL;
-	if (vd->hasInit())
+	// do not create an initialisation statement for
+	// explicit array initializer, otherwise it will
+	// cause an error: "array type is not assignable"
+	if (vd->hasInit() && !vd->getType()->isArrayType())
 	{
+		// for constant variables remove the const qualifier
+		// otherwise when it is initialised in a separate statement,
+		// an error will occur: "read-only variable is not assignable"
 		QualType qtype = vd->getType();
 		const Type* type = qtype.getTypePtr();
 		vd->setType(QualType(type, 0));
-		if (vd->getType().isConstQualified()) fprintf(stderr, "Error in CanonFormTranslator::VisitDeclStmt()\n");
-		else fprintf(stderr, "CanonFormTranslator::VisitDeclStmt() OK\n");
 
 		// create an assign stmt
 		Expr* init = vd->getInit()->IgnoreParenCasts();
